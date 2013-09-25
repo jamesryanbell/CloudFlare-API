@@ -1,8 +1,8 @@
 <?php
 /**
  * CloudFlare API
- * 
- * 
+ *
+ *
  * @author AzzA <azza@broadcasthe.net>
  * @copyright omgwtfhax inc. 2011
  * @version 1.0
@@ -10,7 +10,7 @@
 class cloudflare_api {
     //The URL of the API
     private $URL = array('USER' => 'https://www.cloudflare.com/api_json.html', 'HOST' => 'https://api.cloudflare.com/host-gw.html');
-    
+
     //Timeout for the API requests in seconds
     const TIMEOUT = 5;
 
@@ -22,17 +22,17 @@ class cloudflare_api {
     const INTERVAL_24_HOURS = 100;
     const INTERVAL_12_HOURS = 110;
     const INTERVAL_6_HOURS = 120;
-    
+
     //Stores the api key
     private $token_key;
     private $host_key;
-    
+
     //Stores the email login
     private $email;
-    
+
     //Data to post
     private $data = array();
-    
+
     /**
      * Make a new instance of the API client
      */
@@ -50,22 +50,22 @@ class cloudflare_api {
                 break;
         }
     }
-    
+
     public function setEmail($email) {
         $this->email = $email;
     }
-    
+
     public function setToken($token_key) {
         $this->token_key = $token_key;
     }
-    
-	
+
+
     /**
      * CLIENT API
      * Section 3
      * Access
      */
-	
+
     /**
      * 3.1 - Retrieve Domain Statistics For A Given Time Frame
      * This function retrieves the current stats and settings for a particular website.
@@ -77,7 +77,7 @@ class cloudflare_api {
         $data['interval'] = $interval;
         return $this->http_post($data);
     }
-	
+
     /**
      * 3.2 - Retrieve A List Of The Domains
      * This lists all domains in a CloudFlare account along with other data.
@@ -86,7 +86,7 @@ class cloudflare_api {
         $data['a']        = "zone_load_multi";
         return $this->http_post($data);
     }
-	
+
     /**
      * 3.3 - Retrieve DNS Records Of A Given Domain
      * This function retrieves the current stats and settings for a particular website.
@@ -97,7 +97,7 @@ class cloudflare_api {
         $data['z']        = $domain;
         return $this->http_post($data);
     }
-	
+
     /**
      * 3.4 - Checks For Active Zones And Returns Their Corresponding Zids
      * This function retrieves domain statistics for a given time frame.
@@ -109,11 +109,11 @@ class cloudflare_api {
         $data['zones'] = $zones;
         return $this->http_post($data);
     }
-	
+
     /**
      * 3.5 - Pull Recent IPs Visiting Your Site
      * This function returns a list of IP address which hit your site classified by type.
-     * $zoneid = ID of the zone you would like to check. 
+     * $zoneid = ID of the zone you would like to check.
      * $hours = Number of hours to go back. Default is 24, max is 48.
      * $class = Restrict the result set to a given class. Currently r|s|t, for regular, crawler, threat resp.
      * $geo = Optional token. Add to add longitude and latitude information to the response. 0,0 means no data.
@@ -126,7 +126,7 @@ class cloudflare_api {
         $data['geo']   = $geo;
         return $this->http_post($data);
     }
-	
+
     /**
      * 3.6 - Check The Threat Score For A Given IP
      * This function retrieves the current threat score for a given IP.
@@ -137,7 +137,7 @@ class cloudflare_api {
         $data['ip'] = $ip;
         return $this->http_post($data);
     }
-	
+
     /**
      * 3.7 - List All The Current Settings
      * This function retrieves all the current settings for a given domain.
@@ -147,14 +147,14 @@ class cloudflare_api {
         $data['z']        = $domain;
         return $this->http_post($data);
     }
-	
-	
+
+
     /**
      * CLIENT API
      * Section 4
      * Modify
      */
-    
+
     /**
      * 4.1 - Set The Security Level
      * This function sets the Basic Security Level to I'M UNDER ATTACK! / HIGH / MEDIUM / LOW / ESSENTIALLY OFF.
@@ -166,7 +166,7 @@ class cloudflare_api {
         $data['v'] = $mode;
         return $this->http_post($data);
     }
-	
+
     /**
      * 4.2 - Set The Cache Level
      * This function sets the Caching Level to Aggressive or Basic.
@@ -178,7 +178,7 @@ class cloudflare_api {
         $data['v'] = ($mode == 'agg') ? 'agg' : 'basic';
         return $this->http_post($data);
     }
-	
+
     /**
      * 4.3 - Toggling Development Mode
      * This function allows you to toggle Development Mode on or off for a particular domain.
@@ -191,7 +191,7 @@ class cloudflare_api {
         $data['v'] = ($mode == true) ? 1 : 0;
         return $this->http_post($data);
     }
-    
+
     /**
      * 4.4 - Clear CloudFlare's Cache
      * This function will purge CloudFlare of any cached files.
@@ -204,7 +204,7 @@ class cloudflare_api {
         $data['v'] = 1;
         return $this->http_post($data);
     }
-    
+
     /**
      * 4.5 - Purge A Single File In CloudFlare's Cache
      * This function will purge a single file from CloudFlare's cache.
@@ -215,7 +215,7 @@ class cloudflare_api {
         $data['url'] = $url;
         return $this->http_post($data);
     }
-    
+
     /**
      * 4.6 - Update The Snapshot Of Your Site
      * This snapshot is used on CloudFlare's challenge page
@@ -228,7 +228,7 @@ class cloudflare_api {
         $data['zid'] = $zoneid;
         return $this->http_post($data);
     }
-	
+
     /**
      * 4.7a - Whitelist IPs
      * You can add an IP address to your whitelist.
@@ -238,7 +238,7 @@ class cloudflare_api {
         $data['key'] = $ip;
         return $this->http_post($data);
     }
-    
+
     /**
      * 4.7b - Blacklist IPs
      * You can add an IP address to your blacklist.
@@ -248,7 +248,7 @@ class cloudflare_api {
         $data['key'] = $ip;
         return $this->http_post($data);
     }
-	
+
     /**
      * 4.7c - Unlist IPs
      * You can remove an IP address from the whitelist and the blacklist.
@@ -258,7 +258,7 @@ class cloudflare_api {
         $data['key'] = $ip;
         return $this->http_post($data);
     }
-    
+
     /**
      * 4.8 - Toggle IPv6 Support
      * This function toggles IPv6 support.
@@ -269,7 +269,7 @@ class cloudflare_api {
         $data['v'] = ($mode == true) ? 1 : 0;
         return $this->http_post($data);
     }
-    
+
     /**
      * 4.9 - Set Rocket Loader
      * This function changes Rocket Loader setting.
@@ -280,7 +280,7 @@ class cloudflare_api {
         $data['v'] = $mode;
         return $this->http_post($data);
     }
-    
+
     /**
      * 4.10 - Set Minification
      * This function changes minification settings.
@@ -291,22 +291,22 @@ class cloudflare_api {
         $data['v'] = $mode;
         return $this->http_post($data);
     }
-	
-	
+
+
     /**
      * CLIENT API
      * Section 5
      * DNS Record Management
      */
-	
+
     /**
      * 5.1 - Add A New DNS Record
      * This function creates a new DNS record for a zone.
      * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
      */
-    public function rec_new($domain, $type, $name, $ttl = 1, $mode = 1, $piro = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
+    public function rec_new($domain, $type, $name, $content, $ttl = 1, $mode = 1, $piro = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
         $data['a']            = 'rec_new';
-        $data['z']	          = $domain;
+        $data['z']	      = $domain;
         $data['type']         = $type;
         $data['name']         = $name;
         $data['content']      = $content;
@@ -322,18 +322,18 @@ class cloudflare_api {
             $data['weight'] = $weight;
             $data['port'] = $port;
             $data['target'] = $target;
-		} 
+		}
         return $this->http_post($data);
     }
-    
+
     /**
      * 5.2 - Edit A DNS Record
      * This function edits a DNS record for a zone.
      * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
      */
-    public function rec_edit($domain, $type, $id, $name, $ttl = 1, $mode = 1, $piro = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
+    public function rec_edit($domain, $type, $id, $name, $content, $ttl = 1, $mode = 1, $piro = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
         $data['a']            = 'rec_edit';
-        $data['z']	          = $domain;
+        $data['z']	      = $domain;
         $data['type']         = $type;
         $data['name']         = $id;
         $data['name']         = $name;
@@ -350,10 +350,10 @@ class cloudflare_api {
             $data['weight'] = $weight;
             $data['port'] = $port;
             $data['target'] = $target;
-		} 
+		}
         return $this->http_post($data);
     }
-    
+
     /**
      * 5.3 - Delete A DNS Record
      * This function deletes a DNS record for a zone.
@@ -367,14 +367,14 @@ class cloudflare_api {
         $data['id']           = $id;
         return $this->http_post($data);
     }
-	
-	
+
+
     /**
      * HOST API
      * Section 3
      * Specific Host Provider Operations
      */
-    
+
     public function user_create($email, $password, $username = '', $id = '') {
         $data['act']                 = 'user_create';
         $data['cloudflare_email']    = $email;
@@ -383,7 +383,7 @@ class cloudflare_api {
         $data['unique_id']           = $id;
         return $this->http_post($data, 'HOST');
     }
-    
+
     public function zone_set($key, $zone, $resolve_to, $subdomains) {
         if (is_array($subdomains))
             $sudomains = implode(",", $subdomains);
@@ -394,7 +394,7 @@ class cloudflare_api {
         $data['subdomains'] = $subdomains;
         return $this->http_post($data, 'HOST');
     }
-    
+
     public function user_lookup($email, $isID = false) {
         $data['act'] = 'user_lookup';
         if ($isID) {
@@ -404,7 +404,7 @@ class cloudflare_api {
         }
         return $this->http_post($data, 'HOST');
     }
-    
+
     public function user_auth($email, $pass, $id = '') {
         $data['act']              = 'user_auth';
         $data['cloudflare_email'] = $email;
@@ -412,22 +412,22 @@ class cloudflare_api {
         $data['unique_id']        = $id;
         return $this->http_post($data, 'HOST');
     }
-    
+
     public function zone_lookup($zone, $user_key) {
         $data['act']       = 'zone_lookup';
         $data['user_key']  = $user_key;
         $data['zone_name'] = $zone;
         return $this->http_post($data, 'HOST');
     }
-    
+
     public function zone_delete($zone, $user_key) {
         $data['act']       = 'zone_delete';
         $data['user_key']  = $user_key;
         $data['zone_name'] = $zone;
         return $this->http_post($data, 'HOST');
     }
-    
-	
+
+
     /**
      * GLOBAL API CALL
      * HTTP POST a specific task with the supplied data

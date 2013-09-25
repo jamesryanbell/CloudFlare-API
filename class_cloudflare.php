@@ -30,9 +30,6 @@ class cloudflare_api {
     //Stores the email login
     private $email;
 
-    //Data to post
-    private $data = array();
-
     /**
      * Make a new instance of the API client
      */

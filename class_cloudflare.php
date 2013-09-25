@@ -9,7 +9,7 @@
  */
 class cloudflare_api {
     //The URL of the API
-    private $URL = array('USER' => 'https://www.cloudflare.com/api_json.html', 'HOST' => 'https://api.cloudflare.com/host-gw.html');
+    private static $URL = array('USER' => 'https://www.cloudflare.com/api_json.html', 'HOST' => 'https://api.cloudflare.com/host-gw.html');
 
     //Timeout for the API requests in seconds
     const TIMEOUT = 5;
@@ -504,7 +504,7 @@ class cloudflare_api {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_VERBOSE, 0);
         curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-        curl_setopt($ch, CURLOPT_URL, $this->URL[$type]);
+        curl_setopt($ch, CURLOPT_URL, self::$URL[$type]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);

@@ -72,7 +72,7 @@ class cloudflare_api {
      * It can also be used to get currently settings of values such as the security level.
      */
     public function stats($domain, $interval = 20) {
-        $data['a']        = "stats";
+        $data['a']        = 'stats';
         $data['z']        = $domain;
         $data['interval'] = $interval;
         return $this->http_post($data);
@@ -83,7 +83,7 @@ class cloudflare_api {
      * This lists all domains in a CloudFlare account along with other data.
      */
     public function zone_load_multi() {
-        $data['a']        = "zone_load_multi";
+        $data['a']        = 'zone_load_multi';
         return $this->http_post($data);
     }
 
@@ -93,7 +93,7 @@ class cloudflare_api {
      * It can also be used to get currently settings of values such as the security level.
      */
     public function rec_load_all($domain) {
-        $data['a']        = "rec_load_all";
+        $data['a']        = 'rec_load_all';
         $data['z']        = $domain;
         return $this->http_post($data);
     }
@@ -143,7 +143,7 @@ class cloudflare_api {
      * This function retrieves all the current settings for a given domain.
      */
     public function zone_settings($domain) {
-        $data['a']        = "zone_settings";
+        $data['a']        = 'zone_settings';
         $data['z']        = $domain;
         return $this->http_post($data);
     }
@@ -161,7 +161,7 @@ class cloudflare_api {
      * The switches are: (high|med|low|eoff).
      */
     public function sec_lvl($domain, $mode) {
-        $data['a'] = "sec_lvl";
+        $data['a'] = 'sec_lvl';
         $data['z'] = $domain;
         $data['v'] = $mode;
         return $this->http_post($data);
@@ -173,7 +173,7 @@ class cloudflare_api {
      * The switches are: (agg|basic).
      */
     public function cache_lvl($domain, $mode) {
-        $data['a'] = "cache_lvl";
+        $data['a'] = 'cache_lvl';
         $data['z'] = $domain;
         $data['v'] = ($mode == 'agg') ? 'agg' : 'basic';
         return $this->http_post($data);
@@ -186,7 +186,7 @@ class cloudflare_api {
      * Development mode remains on for 3 hours or until when it is toggled back off.
      */
     public function devmode($domain, $mode) {
-        $data['a'] = "devmode";
+        $data['a'] = 'devmode';
         $data['z'] = $domain;
         $data['v'] = ($mode == true) ? 1 : 0;
         return $this->http_post($data);
@@ -199,7 +199,7 @@ class cloudflare_api {
      * This function should be used sparingly.
      */
     public function fpurge_ts($domain) {
-        $data['a'] = "fpurge_ts";
+        $data['a'] = 'fpurge_ts';
         $data['z'] = $domain;
         $data['v'] = 1;
         return $this->http_post($data);
@@ -210,7 +210,7 @@ class cloudflare_api {
      * This function will purge a single file from CloudFlare's cache.
      */
     public function zone_file_purge($domain, $url) {
-        $data['a'] = "zone_file_purge";
+        $data['a'] = 'zone_file_purge';
         $data['z'] = $domain;
         $data['url'] = $url;
         return $this->http_post($data);
@@ -234,7 +234,7 @@ class cloudflare_api {
      * You can add an IP address to your whitelist.
      */
     public function wl($ip) {
-        $data['a']   = "wl";
+        $data['a']   = 'wl';
         $data['key'] = $ip;
         return $this->http_post($data);
     }
@@ -244,7 +244,7 @@ class cloudflare_api {
      * You can add an IP address to your blacklist.
      */
     public function ban($ip) {
-        $data['a']   = "ban";
+        $data['a']   = 'ban';
         $data['key'] = $ip;
         return $this->http_post($data);
     }
@@ -254,7 +254,7 @@ class cloudflare_api {
      * You can remove an IP address from the whitelist and the blacklist.
      */
     public function nul($ip) {
-        $data['a']   = "nul";
+        $data['a']   = 'nul';
         $data['key'] = $ip;
         return $this->http_post($data);
     }
@@ -457,7 +457,7 @@ class cloudflare_api {
         curl_close($ch);
         if ($http_code != 200) {
             return array(
-                "error" => $error
+                'error' => $error
             );
         } else {
             return json_decode($http_result);

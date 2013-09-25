@@ -11,6 +11,12 @@ class cloudflare_api {
     //The URL of the API
     private static $URL = array('USER' => 'https://www.cloudflare.com/api_json.html', 'HOST' => 'https://api.cloudflare.com/host-gw.html');
 
+    //Service mode values.
+    private static $MODE_SERVICE = array('A', 'AAAA', 'CNAME');
+
+    //Piro values.
+    private static $PIRO = array('MX', 'SRV');
+
     //Timeout for the API requests in seconds
     const TIMEOUT = 5;
 
@@ -348,9 +354,9 @@ class cloudflare_api {
             'content' => $content,
             'ttl'     => $ttl
         );
-        if ($type == 'A' OR $type == 'AAAA' OR $type == 'CNAME')
+        if (in_array($type, self::$MODE_SERVICE))
             $data['service_mode'] = ($mode == true) ? 1 : 0;
-        if ($type == 'MX' OR $type == 'SRV') {
+        else if (in_array($type, self::$PIRO)) {
             $data['piro'] = $piro;
             if ($type == 'SRV') {
                 $data = array_merge($data, array(
@@ -381,9 +387,9 @@ class cloudflare_api {
             'content' => $content,
             'ttl'     => $ttl
         );
-        if ($type == 'A' OR $type == 'AAAA' OR $type == 'CNAME')
+        if (in_array($type, self::$MODE_SERVICE))
             $data['service_mode'] = ($mode == true) ? 1 : 0;
-        if ($type == 'MX' OR $type == 'SRV') {
+        else if (in_array($type, self::$PIRO)) {
             $data['piro'] = $piro;
             if ($type == 'SRV') {
                 $data = array_merge($data, array(

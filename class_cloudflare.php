@@ -4,8 +4,8 @@
  *
  *
  * @author AzzA <azza@broadcasthe.net>
- * @copyright omgwtfhax inc. 2011
- * @version 1.0
+ * @copyright omgwtfhax inc. 2013
+ * @version 1.1
  */
 class cloudflare_api {
     //The URL of the API

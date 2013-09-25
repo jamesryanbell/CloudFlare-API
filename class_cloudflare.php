@@ -405,7 +405,7 @@ class cloudflare_api {
         return $this->http_post($data, 'HOST');
     }
 
-    public function user_auth($email, $pass, $id = '') {
+    public function user_auth($email, $password, $id = '') {
         $data['act']              = 'user_auth';
         $data['cloudflare_email'] = $email;
         $data['cloudflare_pass']  = $password;

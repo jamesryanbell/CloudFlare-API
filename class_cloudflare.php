@@ -69,9 +69,11 @@ class cloudflare_api {
      * It can also be used to get currently settings of values such as the security level.
      */
     public function stats($domain, $interval = 20) {
-        $data['a']        = 'stats';
-        $data['z']        = $domain;
-        $data['interval'] = $interval;
+        $data = array(
+            'a'        => 'stats',
+            'z'        => $domain,
+            'interval' => $interval
+        );
         return $this->http_post($data);
     }
 
@@ -80,7 +82,9 @@ class cloudflare_api {
      * This lists all domains in a CloudFlare account along with other data.
      */
     public function zone_load_multi() {
-        $data['a']        = 'zone_load_multi';
+        $data = array(
+            'a' => 'zone_load_multi'
+        );
         return $this->http_post($data);
     }
 
@@ -90,8 +94,10 @@ class cloudflare_api {
      * It can also be used to get currently settings of values such as the security level.
      */
     public function rec_load_all($domain) {
-        $data['a']        = 'rec_load_all';
-        $data['z']        = $domain;
+        $data = array(
+            'a' => 'rec_load_all',
+            'z' => $domain
+        );
         return $this->http_post($data);
     }
 
@@ -101,9 +107,11 @@ class cloudflare_api {
      */
     public function zone_check($zones) {
         if (is_array($zones))
-            $zones = implode(",", $zones);
-        $data['a']     = 'zone_check';
-        $data['zones'] = $zones;
+            $zones = implode(',', $zones);
+        $data = array(
+            'a'     => 'zone_check',
+            'zones' => $zones
+        );
         return $this->http_post($data);
     }
 
@@ -116,11 +124,13 @@ class cloudflare_api {
      * $geo = Optional token. Add to add longitude and latitude information to the response. 0,0 means no data.
      */
     public function zone_ips($domain, $hours, $class, $geo = '0,0') {
-        $data['a']     = 'zone_ips';
-        $data['z']     = $domain;
-        $data['hours'] = $hours;
-        $data['class'] = $class;
-        $data['geo']   = $geo;
+        $data = array(
+            'a'     => 'zone_ips',
+            'z'     => $domain,
+            'hours' => $hours,
+            'class' => $class,
+            'geo'   => $geo
+        );
         return $this->http_post($data);
     }
 
@@ -130,8 +140,10 @@ class cloudflare_api {
      * Note that scores are on a logarithmic scale, where a higher score indicates a higher threat.
      */
     public function threat_score($ip) {
-        $data['a']  = 'ip_lkup';
-        $data['ip'] = $ip;
+        $data = array(
+            'a'  => 'ip_lkup',
+            'ip' => $ip
+        );
         return $this->http_post($data);
     }
 
@@ -140,8 +152,10 @@ class cloudflare_api {
      * This function retrieves all the current settings for a given domain.
      */
     public function zone_settings($domain) {
-        $data['a']        = 'zone_settings';
-        $data['z']        = $domain;
+        $data = array(
+            'a' => 'zone_settings',
+            'z' => $domain
+        );
         return $this->http_post($data);
     }
 
@@ -158,9 +172,11 @@ class cloudflare_api {
      * The switches are: (high|med|low|eoff).
      */
     public function sec_lvl($domain, $mode) {
-        $data['a'] = 'sec_lvl';
-        $data['z'] = $domain;
-        $data['v'] = $mode;
+        $data = array(
+            'a' => 'sec_lvl',
+            'z' => $domain,
+            'v' => $mode
+        );
         return $this->http_post($data);
     }
 
@@ -170,9 +186,11 @@ class cloudflare_api {
      * The switches are: (agg|basic).
      */
     public function cache_lvl($domain, $mode) {
-        $data['a'] = 'cache_lvl';
-        $data['z'] = $domain;
-        $data['v'] = ($mode == 'agg') ? 'agg' : 'basic';
+        $data = array(
+            'a' => 'cache_lvl',
+            'z' => $domain,
+            'v' => (strtolower($mode) == 'agg') ? 'agg' : 'basic'
+        );
         return $this->http_post($data);
     }
 
@@ -183,9 +201,11 @@ class cloudflare_api {
      * Development mode remains on for 3 hours or until when it is toggled back off.
      */
     public function devmode($domain, $mode) {
-        $data['a'] = 'devmode';
-        $data['z'] = $domain;
-        $data['v'] = ($mode == true) ? 1 : 0;
+        $data = array(
+            'a' => 'devmode',
+            'z' => $domain,
+            'v' => ($mode == true) ? 1 : 0
+        );
         return $this->http_post($data);
     }
 
@@ -196,9 +216,11 @@ class cloudflare_api {
      * This function should be used sparingly.
      */
     public function fpurge_ts($domain) {
-        $data['a'] = 'fpurge_ts';
-        $data['z'] = $domain;
-        $data['v'] = 1;
+        $data = array(
+            'a' => 'fpurge_ts',
+            'z' => $domain,
+            'v' => 1
+        );
         return $this->http_post($data);
     }
 
@@ -207,9 +229,11 @@ class cloudflare_api {
      * This function will purge a single file from CloudFlare's cache.
      */
     public function zone_file_purge($domain, $url) {
-        $data['a'] = 'zone_file_purge';
-        $data['z'] = $domain;
-        $data['url'] = $url;
+        $data = array(
+            'a'   => 'zone_file_purge',
+            'z'   => $domain,
+            'url' => $url
+        );
         return $this->http_post($data);
     }
 
@@ -221,8 +245,10 @@ class cloudflare_api {
      * Also the new image may take up to 1 hour to appear.
      */
     public function update_image($zoneid) {
-        $data['a']   = 'zone_grab';
-        $data['zid'] = $zoneid;
+        $data = array(
+            'a'   => 'zone_grab',
+            'zid' => $zoneid
+        );
         return $this->http_post($data);
     }
 
@@ -231,8 +257,10 @@ class cloudflare_api {
      * You can add an IP address to your whitelist.
      */
     public function wl($ip) {
-        $data['a']   = 'wl';
-        $data['key'] = $ip;
+        $data = array(
+            'a'   => 'wl',
+            'key' => $ip
+        );
         return $this->http_post($data);
     }
 
@@ -241,8 +269,10 @@ class cloudflare_api {
      * You can add an IP address to your blacklist.
      */
     public function ban($ip) {
-        $data['a']   = 'ban';
-        $data['key'] = $ip;
+        $data = array(
+            'a'   => 'ban',
+            'key' => $ip
+        );
         return $this->http_post($data);
     }
 
@@ -251,8 +281,10 @@ class cloudflare_api {
      * You can remove an IP address from the whitelist and the blacklist.
      */
     public function nul($ip) {
-        $data['a']   = 'nul';
-        $data['key'] = $ip;
+        $data = array(
+            'a'   => 'nul',
+            'key' => $ip
+        );
         return $this->http_post($data);
     }
 
@@ -261,9 +293,11 @@ class cloudflare_api {
      * This function toggles IPv6 support.
      */
     public function ipv46($domain, $mode) {
-        $data['a'] = 'ipv46';
-        $data['z'] = $domain;
-        $data['v'] = ($mode == true) ? 1 : 0;
+        $data = array(
+            'a' => 'ipv46',
+            'z' => $domain,
+            'v' => ($mode == true) ? 1 : 0
+        );
         return $this->http_post($data);
     }
 
@@ -272,9 +306,11 @@ class cloudflare_api {
      * This function changes Rocket Loader setting.
      */
     public function async($domain, $mode) {
-        $data['a'] = 'async';
-        $data['z'] = $domain;
-        $data['v'] = $mode;
+        $data = array(
+            'a' => 'async',
+            'z' => $domain,
+            'v' => $mode
+        );
         return $this->http_post($data);
     }
 
@@ -283,9 +319,11 @@ class cloudflare_api {
      * This function changes minification settings.
      */
     public function minify($domain, $mode) {
-        $data['a'] = 'minify';
-        $data['z'] = $domain;
-        $data['v'] = $mode;
+        $data = array(
+            'a' => 'minify',
+            'z' => $domain,
+            'v' => $mode
+        );
         return $this->http_post($data);
     }
 
@@ -302,24 +340,29 @@ class cloudflare_api {
      * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
      */
     public function rec_new($domain, $type, $name, $content, $ttl = 1, $mode = 1, $piro = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
-        $data['a']            = 'rec_new';
-        $data['z']	      = $domain;
-        $data['type']         = $type;
-        $data['name']         = $name;
-        $data['content']      = $content;
-    	$data['ttl']          = $ttl;
-		if ($type == 'A' OR $type == 'AAAA' OR $type == 'CNAME')
+        $data = array(
+            'a'       => 'rec_new',
+            'z'       => $domain,
+            'type'    => $type,
+            'name'    => $name,
+            'content' => $content,
+            'ttl'     => $ttl
+        );
+        if ($type == 'A' OR $type == 'AAAA' OR $type == 'CNAME')
             $data['service_mode'] = ($mode == true) ? 1 : 0;
-		if ($type == 'MX' OR $type == 'SRV')
+        if ($type == 'MX' OR $type == 'SRV') {
             $data['piro'] = $piro;
-		if ($type == 'SRV') {
-            $data['service'] = $service;
-            $data['srvname'] = $srvname;
-            $data['protocol'] = $protocol;
-            $data['weight'] = $weight;
-            $data['port'] = $port;
-            $data['target'] = $target;
-		}
+            if ($type == 'SRV') {
+                $data = array_merge($data, array(
+                    'service'  => $service,
+                    'srvname'  => $srvname,
+                    'protocol' => $protocol,
+                    'weight'   => $weight,
+                    'port'     => $port,
+                    'target'   => $target
+                ));
+            }
+        }
         return $this->http_post($data);
     }
 
@@ -329,25 +372,30 @@ class cloudflare_api {
      * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
      */
     public function rec_edit($domain, $type, $id, $name, $content, $ttl = 1, $mode = 1, $piro = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
-        $data['a']            = 'rec_edit';
-        $data['z']	      = $domain;
-        $data['type']         = $type;
-        $data['name']         = $id;
-        $data['name']         = $name;
-        $data['content']      = $content;
-    	$data['ttl']          = $ttl;
-		if ($type == 'A' OR $type == 'AAAA' OR $type == 'CNAME')
+        $data = array(
+            'a'       => 'rec_edit',
+            'z'       => $domain,
+            'type'    => $type,
+            'name'    => $id,
+            'name'    => $name,
+            'content' => $content,
+            'ttl'     => $ttl
+        );
+        if ($type == 'A' OR $type == 'AAAA' OR $type == 'CNAME')
             $data['service_mode'] = ($mode == true) ? 1 : 0;
-		if ($type == 'MX' OR $type == 'SRV')
+        if ($type == 'MX' OR $type == 'SRV') {
             $data['piro'] = $piro;
-		if ($type == 'SRV') {
-            $data['service'] = $service;
-            $data['srvname'] = $srvname;
-            $data['protocol'] = $protocol;
-            $data['weight'] = $weight;
-            $data['port'] = $port;
-            $data['target'] = $target;
-		}
+            if ($type == 'SRV') {
+                $data = array_merge($data, array(
+                    'service'  => $service,
+                    'srvname'  => $srvname,
+                    'protocol' => $protocol,
+                    'weight'   => $weight,
+                    'port'     => $port,
+                    'target'   => $target
+                ));
+            }
+        }
         return $this->http_post($data);
     }
 
@@ -359,9 +407,11 @@ class cloudflare_api {
      * $type = A|CNAME
      */
     public function delete_dns_record($domain, $id) {
-        $data['a']            = 'rec_delete';
-        $data['z']	          = $domain;
-        $data['id']           = $id;
+        $data = array(
+            'a'  => 'rec_delete',
+            'z'  => $domain,
+            'id' => $id
+        );
         return $this->http_post($data);
     }
 
@@ -373,27 +423,33 @@ class cloudflare_api {
      */
 
     public function user_create($email, $password, $username = '', $id = '') {
-        $data['act']                 = 'user_create';
-        $data['cloudflare_email']    = $email;
-        $data['cloudflare_pass']     = $password;
-        $data['cloudflare_username'] = $username;
-        $data['unique_id']           = $id;
+        $data = array(
+            'act'                 => 'user_create',
+            'cloudflare_email'    => $email,
+            'cloudflare_pass'     => $password,
+            'cloudflare_username' => $username,
+            'unique_id'           => $id
+        );
         return $this->http_post($data, 'HOST');
     }
 
     public function zone_set($key, $zone, $resolve_to, $subdomains) {
         if (is_array($subdomains))
-            $subdomains = implode(",", $subdomains);
-        $data['act']        = 'zone_set';
-        $data['user_key']   = $key;
-        $data['zone_name']  = $zone;
-        $data['resolve_to'] = $resolve_to;
-        $data['subdomains'] = $subdomains;
+            $subdomains = implode(',', $subdomains);
+        $data = array(
+            'act'        => 'zone_set',
+            'user_key'   => $key,
+            'zone_name'  => $zone,
+            'resolve_to' => $resolve_to,
+            'subdomains' => $subdomains
+        );
         return $this->http_post($data, 'HOST');
     }
 
     public function user_lookup($email, $isID = false) {
-        $data['act'] = 'user_lookup';
+        $data = array(
+            'act' => 'user_lookup'
+        );
         if ($isID) {
             $data['unique_id'] = $email;
         } else {
@@ -403,24 +459,30 @@ class cloudflare_api {
     }
 
     public function user_auth($email, $password, $id = '') {
-        $data['act']              = 'user_auth';
-        $data['cloudflare_email'] = $email;
-        $data['cloudflare_pass']  = $password;
-        $data['unique_id']        = $id;
+        $data = array(
+            'act'              => 'user_auth',
+            'cloudflare_email' => $email,
+            'cloudflare_pass'  => $password,
+            'unique_id'        => $id
+        );
         return $this->http_post($data, 'HOST');
     }
 
     public function zone_lookup($zone, $user_key) {
-        $data['act']       = 'zone_lookup';
-        $data['user_key']  = $user_key;
-        $data['zone_name'] = $zone;
+        $data = array(
+            'act'       => 'zone_lookup',
+            'user_key'  => $user_key,
+            'zone_name' => $zone
+        );
         return $this->http_post($data, 'HOST');
     }
 
     public function zone_delete($zone, $user_key) {
-        $data['act']       = 'zone_delete';
-        $data['user_key']  = $user_key;
-        $data['zone_name'] = $zone;
+        $data = array(
+            'act'       => 'zone_delete',
+            'user_key'  => $user_key,
+            'zone_name' => $zone
+        );
         return $this->http_post($data, 'HOST');
     }
 

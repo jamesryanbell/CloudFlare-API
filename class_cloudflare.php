@@ -96,8 +96,7 @@ class cloudflare_api {
 
     /**
      * 3.3 - Retrieve DNS Records Of A Given Domain
-     * This function retrieves the current stats and settings for a particular website.
-     * It can also be used to get currently settings of values such as the security level.
+     * This function retrieves the current DNS records for a particular website.
      */
     public function rec_load_all($domain) {
         $data = array(

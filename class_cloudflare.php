@@ -174,7 +174,7 @@ class cloudflare_api {
     /**
      * 4.1 - Set The Security Level
      * This function sets the Basic Security Level to I'M UNDER ATTACK! / HIGH / MEDIUM / LOW / ESSENTIALLY OFF.
-     * The switches are: (high|med|low|eoff).
+     * The switches are: (help|high|med|low|eoff).
      */
     public function sec_lvl($domain, $mode) {
         $data = array(

@@ -381,7 +381,7 @@ class cloudflare_api {
             'a'       => 'rec_edit',
             'z'       => $domain,
             'type'    => $type,
-            'name'    => $id,
+            'id'      => $id,
             'name'    => $name,
             'content' => $content,
             'ttl'     => $ttl

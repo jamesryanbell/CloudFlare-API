@@ -14,8 +14,8 @@ class cloudflare_api {
     //Service mode values.
     private static $MODE_SERVICE = array('A', 'AAAA', 'CNAME');
 
-    //Piro values.
-    private static $PIRO = array('MX', 'SRV');
+    //Prio values.
+    private static $PRIO = array('MX', 'SRV');
 
     //Timeout for the API requests in seconds
     const TIMEOUT = 5;
@@ -344,7 +344,7 @@ class cloudflare_api {
      * This function creates a new DNS record for a zone.
      * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
      */
-    public function rec_new($domain, $type, $name, $content, $ttl = 1, $mode = 1, $piro = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
+    public function rec_new($domain, $type, $name, $content, $ttl = 1, $mode = 1, $prio = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
         $data = array(
             'a'       => 'rec_new',
             'z'       => $domain,
@@ -355,8 +355,8 @@ class cloudflare_api {
         );
         if (in_array($type, self::$MODE_SERVICE))
             $data['service_mode'] = ($mode == true) ? 1 : 0;
-        else if (in_array($type, self::$PIRO)) {
-            $data['piro'] = $piro;
+        else if (in_array($type, self::$PRIO)) {
+            $data['prio'] = $prio;
             if ($type == 'SRV') {
                 $data = array_merge($data, array(
                     'service'  => $service,
@@ -376,7 +376,7 @@ class cloudflare_api {
      * This function edits a DNS record for a zone.
      * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
      */
-    public function rec_edit($domain, $type, $id, $name, $content, $ttl = 1, $mode = 1, $piro = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
+    public function rec_edit($domain, $type, $id, $name, $content, $ttl = 1, $mode = 1, $prio = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
         $data = array(
             'a'       => 'rec_edit',
             'z'       => $domain,
@@ -388,8 +388,8 @@ class cloudflare_api {
         );
         if (in_array($type, self::$MODE_SERVICE))
             $data['service_mode'] = ($mode == true) ? 1 : 0;
-        else if (in_array($type, self::$PIRO)) {
-            $data['piro'] = $piro;
+        else if (in_array($type, self::$PRIO)) {
+            $data['prio'] = $prio;
             if ($type == 'SRV') {
                 $data = array_merge($data, array(
                     'service'  => $service,

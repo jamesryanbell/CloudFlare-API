@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CloudFlare API
  *
@@ -7,9 +8,13 @@
  * @copyright omgwtfhax inc. 2013
  * @version 1.1
  */
-class cloudflare_api {
+class cloudflare_api
+{
     //The URL of the API
-    private static $URL = array('USER' => 'https://www.cloudflare.com/api_json.html', 'HOST' => 'https://api.cloudflare.com/host-gw.html');
+    private static $URL = array(
+        'USER' => 'https://www.cloudflare.com/api_json.html',
+        'HOST' => 'https://api.cloudflare.com/host-gw.html'
+    );
 
     //Service mode values.
     private static $MODE_SERVICE = array('A', 'AAAA', 'CNAME');
@@ -39,7 +44,8 @@ class cloudflare_api {
     /**
      * Make a new instance of the API client
      */
-    public function __construct() {
+    public function __construct()
+    {
         $parameters = func_get_args();
         switch (func_num_args()) {
             case 1:
@@ -54,11 +60,13 @@ class cloudflare_api {
         }
     }
 
-    public function setEmail($email) {
+    public function setEmail($email)
+    {
         $this->email = $email;
     }
 
-    public function setToken($token_key) {
+    public function setToken($token_key)
+    {
         $this->token_key = $token_key;
     }
 
@@ -74,7 +82,8 @@ class cloudflare_api {
      * This function retrieves the current stats and settings for a particular website.
      * It can also be used to get currently settings of values such as the security level.
      */
-    public function stats($domain, $interval = 20) {
+    public function stats($domain, $interval = 20)
+    {
         $data = array(
             'a'        => 'stats',
             'z'        => $domain,
@@ -87,7 +96,8 @@ class cloudflare_api {
      * 3.2 - Retrieve A List Of The Domains
      * This lists all domains in a CloudFlare account along with other data.
      */
-    public function zone_load_multi() {
+    public function zone_load_multi()
+    {
         $data = array(
             'a' => 'zone_load_multi'
         );
@@ -98,7 +108,8 @@ class cloudflare_api {
      * 3.3 - Retrieve DNS Records Of A Given Domain
      * This function retrieves the current DNS records for a particular website.
      */
-    public function rec_load_all($domain) {
+    public function rec_load_all($domain)
+    {
         $data = array(
             'a' => 'rec_load_all',
             'z' => $domain
@@ -110,9 +121,11 @@ class cloudflare_api {
      * 3.4 - Checks For Active Zones And Returns Their Corresponding Zids
      * This function retrieves domain statistics for a given time frame.
      */
-    public function zone_check($zones) {
-        if (is_array($zones))
+    public function zone_check($zones)
+    {
+        if (is_array($zones)) {
             $zones = implode(',', $zones);
+        }
         $data = array(
             'a'     => 'zone_check',
             'zones' => $zones
@@ -128,7 +141,8 @@ class cloudflare_api {
      * $class = Restrict the result set to a given class. Currently r|s|t, for regular, crawler, threat resp.
      * $geo = Optional token. Add to add longitude and latitude information to the response. 0,0 means no data.
      */
-    public function zone_ips($domain, $hours, $class, $geo = '0,0') {
+    public function zone_ips($domain, $hours, $class, $geo = '0,0')
+    {
         $data = array(
             'a'     => 'zone_ips',
             'z'     => $domain,
@@ -144,7 +158,8 @@ class cloudflare_api {
      * This function retrieves the current threat score for a given IP.
      * Note that scores are on a logarithmic scale, where a higher score indicates a higher threat.
      */
-    public function threat_score($ip) {
+    public function threat_score($ip)
+    {
         $data = array(
             'a'  => 'ip_lkup',
             'ip' => $ip
@@ -156,7 +171,8 @@ class cloudflare_api {
      * 3.7 - List All The Current Settings
      * This function retrieves all the current settings for a given domain.
      */
-    public function zone_settings($domain) {
+    public function zone_settings($domain)
+    {
         $data = array(
             'a' => 'zone_settings',
             'z' => $domain
@@ -176,7 +192,8 @@ class cloudflare_api {
      * This function sets the Basic Security Level to I'M UNDER ATTACK! / HIGH / MEDIUM / LOW / ESSENTIALLY OFF.
      * The switches are: (help|high|med|low|eoff).
      */
-    public function sec_lvl($domain, $mode) {
+    public function sec_lvl($domain, $mode)
+    {
         $data = array(
             'a' => 'sec_lvl',
             'z' => $domain,
@@ -190,7 +207,8 @@ class cloudflare_api {
      * This function sets the Caching Level to Aggressive or Basic.
      * The switches are: (agg|basic).
      */
-    public function cache_lvl($domain, $mode) {
+    public function cache_lvl($domain, $mode)
+    {
         $data = array(
             'a' => 'cache_lvl',
             'z' => $domain,
@@ -205,7 +223,8 @@ class cloudflare_api {
      * When Development Mode is on the cache is bypassed.
      * Development mode remains on for 3 hours or until when it is toggled back off.
      */
-    public function devmode($domain, $mode) {
+    public function devmode($domain, $mode)
+    {
         $data = array(
             'a' => 'devmode',
             'z' => $domain,
@@ -220,7 +239,8 @@ class cloudflare_api {
      * It may take up to 48 hours for the cache to rebuild and optimum performance to be achieved.
      * This function should be used sparingly.
      */
-    public function fpurge_ts($domain) {
+    public function fpurge_ts($domain)
+    {
         $data = array(
             'a' => 'fpurge_ts',
             'z' => $domain,
@@ -233,7 +253,8 @@ class cloudflare_api {
      * 4.5 - Purge A Single File In CloudFlare's Cache
      * This function will purge a single file from CloudFlare's cache.
      */
-    public function zone_file_purge($domain, $url) {
+    public function zone_file_purge($domain, $url)
+    {
         $data = array(
             'a'   => 'zone_file_purge',
             'z'   => $domain,
@@ -249,7 +270,8 @@ class cloudflare_api {
      * Note that this call is rate limited to once per zone per day.
      * Also the new image may take up to 1 hour to appear.
      */
-    public function update_image($zoneid) {
+    public function update_image($zoneid)
+    {
         $data = array(
             'a'   => 'zone_grab',
             'zid' => $zoneid
@@ -261,7 +283,8 @@ class cloudflare_api {
      * 4.7a - Whitelist IPs
      * You can add an IP address to your whitelist.
      */
-    public function wl($ip) {
+    public function wl($ip)
+    {
         $data = array(
             'a'   => 'wl',
             'key' => $ip
@@ -273,7 +296,8 @@ class cloudflare_api {
      * 4.7b - Blacklist IPs
      * You can add an IP address to your blacklist.
      */
-    public function ban($ip) {
+    public function ban($ip)
+    {
         $data = array(
             'a'   => 'ban',
             'key' => $ip
@@ -285,7 +309,8 @@ class cloudflare_api {
      * 4.7c - Unlist IPs
      * You can remove an IP address from the whitelist and the blacklist.
      */
-    public function nul($ip) {
+    public function nul($ip)
+    {
         $data = array(
             'a'   => 'nul',
             'key' => $ip
@@ -297,7 +322,8 @@ class cloudflare_api {
      * 4.8 - Toggle IPv6 Support
      * This function toggles IPv6 support.
      */
-    public function ipv46($domain, $mode) {
+    public function ipv46($domain, $mode)
+    {
         $data = array(
             'a' => 'ipv46',
             'z' => $domain,
@@ -310,7 +336,8 @@ class cloudflare_api {
      * 4.9 - Set Rocket Loader
      * This function changes Rocket Loader setting.
      */
-    public function async($domain, $mode) {
+    public function async($domain, $mode)
+    {
         $data = array(
             'a' => 'async',
             'z' => $domain,
@@ -323,7 +350,8 @@ class cloudflare_api {
      * 4.10 - Set Minification
      * This function changes minification settings.
      */
-    public function minify($domain, $mode) {
+    public function minify($domain, $mode)
+    {
         $data = array(
             'a' => 'minify',
             'z' => $domain,
@@ -344,7 +372,8 @@ class cloudflare_api {
      * This function creates a new DNS record for a zone.
      * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
      */
-    public function rec_new($domain, $type, $name, $content, $ttl = 1, $mode = 1, $prio = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
+    public function rec_new($domain, $type, $name, $content, $ttl = 1, $mode = 1, $prio = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1)
+    {
         $data = array(
             'a'       => 'rec_new',
             'z'       => $domain,
@@ -376,7 +405,8 @@ class cloudflare_api {
      * This function edits a DNS record for a zone.
      * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
      */
-    public function rec_edit($domain, $type, $id, $name, $content, $ttl = 1, $mode = 1, $prio = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1) {
+    public function rec_edit($domain, $type, $id, $name, $content, $ttl = 1, $mode = 1, $prio = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1)
+    {
         $data = array(
             'a'       => 'rec_edit',
             'z'       => $domain,
@@ -411,7 +441,8 @@ class cloudflare_api {
      * $id = The DNS Record ID (Available by using the rec_load_all call)
      * $type = A|CNAME
      */
-    public function delete_dns_record($domain, $id) {
+    public function delete_dns_record($domain, $id)
+    {
         $data = array(
             'a'  => 'rec_delete',
             'z'  => $domain,
@@ -427,7 +458,8 @@ class cloudflare_api {
      * Specific Host Provider Operations
      */
 
-    public function user_create($email, $password, $username = '', $id = '') {
+    public function user_create($email, $password, $username = '', $id = '')
+    {
         $data = array(
             'act'                 => 'user_create',
             'cloudflare_email'    => $email,
@@ -438,7 +470,8 @@ class cloudflare_api {
         return $this->http_post($data, 'HOST');
     }
 
-    public function zone_set($key, $zone, $resolve_to, $subdomains) {
+    public function zone_set($key, $zone, $resolve_to, $subdomains)
+    {
         if (is_array($subdomains))
             $subdomains = implode(',', $subdomains);
         $data = array(
@@ -451,7 +484,8 @@ class cloudflare_api {
         return $this->http_post($data, 'HOST');
     }
 
-    public function user_lookup($email, $isID = false) {
+    public function user_lookup($email, $isID = false)
+    {
         $data = array(
             'act' => 'user_lookup'
         );
@@ -463,7 +497,8 @@ class cloudflare_api {
         return $this->http_post($data, 'HOST');
     }
 
-    public function user_auth($email, $password, $id = '') {
+    public function user_auth($email, $password, $id = '')
+    {
         $data = array(
             'act'              => 'user_auth',
             'cloudflare_email' => $email,
@@ -473,7 +508,8 @@ class cloudflare_api {
         return $this->http_post($data, 'HOST');
     }
 
-    public function zone_lookup($zone, $user_key) {
+    public function zone_lookup($zone, $user_key)
+    {
         $data = array(
             'act'       => 'zone_lookup',
             'user_key'  => $user_key,
@@ -482,7 +518,8 @@ class cloudflare_api {
         return $this->http_post($data, 'HOST');
     }
 
-    public function zone_delete($zone, $user_key) {
+    public function zone_delete($zone, $user_key)
+    {
         $data = array(
             'act'       => 'zone_delete',
             'user_key'  => $user_key,
@@ -496,7 +533,8 @@ class cloudflare_api {
      * GLOBAL API CALL
      * HTTP POST a specific task with the supplied data
      */
-    private function http_post($data, $type = 'USER') {
+    private function http_post($data, $type = 'USER')
+    {
         switch ($type) {
             case 'USER':
                 $data['u']   = $this->email;

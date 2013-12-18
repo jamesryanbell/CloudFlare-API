@@ -179,7 +179,17 @@ class cloudflare_api
         );
         return $this->http_post($data);
     }
-
+    
+    /**
+     * Undocumented method
+     * SEE: https://github.com/vexxhost/CloudFlare-API/pull/3
+     */
+     public function zone_init($zone)
+     {
+         $data['a']    = 'zone_init';
+         $data['z']    = $zone;
+         return $this->http_post($data);
+     }
 
     /**
      * CLIENT API

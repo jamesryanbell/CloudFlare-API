@@ -1,0 +1,14 @@
+{
+    "name": "vexxhost/cloud-flare-api",
+    "description": "Cloud Flare basic API bindings",
+    "license": "BSD-2-Clause",
+    "authors": [
+        {
+            "name": "AzzA",
+            "email": "azza@broadcasthe.net"
+        }
+    ],
+    "require": {
+
+    }
+}

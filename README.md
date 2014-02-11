@@ -13,7 +13,7 @@ A PHP object is returned in all cases.
 ###Usage
 
     $cf = new cloudflare_api("me@example.com", "799df833d7a42adf3b8e2fd113c7260b955b8e95ac42c");
-    $response = $cf->stats("example.com", INTERVAL_30_DAYS);
+    $response = $cf->stats("example.com", $cf::INTERVAL_30_DAYS);
     
 	
 ##Host API

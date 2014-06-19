@@ -8,7 +8,9 @@
             "email": "azza@broadcasthe.net"
         }
     ],
-    "require": {
-
+    "autoload": {
+        "classmap" : [
+            "class_cloudflare.php"
+        ]
     }
 }

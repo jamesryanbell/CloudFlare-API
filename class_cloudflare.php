@@ -538,6 +538,15 @@ class cloudflare_api
         return $this->http_post($data, 'HOST');
     }
 
+    public function zone_list()
+    {
+        $data = array(
+            'act'       => 'zone_list',
+            'one_status'  => 'ALL',
+            'sub_status' => 'ALL'
+        );
+        return $this->http_post($data, 'HOST');
+    }
 
     /**
      * GLOBAL API CALL

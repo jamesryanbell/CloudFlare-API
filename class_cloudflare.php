@@ -11,13 +11,10 @@
 class cloudflare_api
 {
     //The URL of the API
-    private static $URL = array(
-        'USER' => 'https://www.cloudflare.com/api_json.html',
-        'HOST' => 'https://api.cloudflare.com/host-gw.html'
-    );
+    private static $URL = 'https://api.cloudflare.com/v4/';
 
     //Service mode values.
-    private static $MODE_SERVICE = array('A', 'AAAA', 'CNAME');
+    private static $MODE_SERVICE = array('A', 'AAAA', 'CNAME', 'TXT', 'SRV', 'LOC', 'MX', 'NS', 'SPF');
 
     //Prio values.
     private static $PRIO = array('MX', 'SRV');
@@ -25,14 +22,14 @@ class cloudflare_api
     //Timeout for the API requests in seconds
     const TIMEOUT = 5;
 
-    //Interval values for Stats
-    const INTERVAL_365_DAYS = 10;
-    const INTERVAL_30_DAYS = 20;
-    const INTERVAL_7_DAYS = 30;
-    const INTERVAL_DAY = 40;
-    const INTERVAL_24_HOURS = 100;
-    const INTERVAL_12_HOURS = 110;
-    const INTERVAL_6_HOURS = 120;
+    // //Interval values for Stats
+    // const INTERVAL_365_DAYS = 10;
+    // const INTERVAL_30_DAYS = 20;
+    // const INTERVAL_7_DAYS = 30;
+    // const INTERVAL_DAY = 40;
+    // const INTERVAL_24_HOURS = 100;
+    // const INTERVAL_12_HOURS = 110;
+    // const INTERVAL_6_HOURS = 120;
 
     //Stores the api key
     private $token_key;
@@ -46,17 +43,18 @@ class cloudflare_api
      */
     public function __construct()
     {
-        $parameters = func_get_args();
-        switch (func_num_args()) {
-            case 1:
-                //a host API
-                $this->host_key  = $parameters[0];
-                break;
-            case 2:
-                //a user request
+        $num_args = func_num_args();
+
+        if ($num_args >= 2) {
+            $parameters = func_get_args();
+            if ($num_args === 2) {
                 $this->email     = $parameters[0];
                 $this->token_key = $parameters[1];
-                break;
+            } else if ($num_args === 3) {
+                $this->email     = $parameters[0];
+                $this->token_key = $parameters[1];
+                $this->host_key  = $parameters[2];
+            }
         }
     }
 
@@ -72,506 +70,299 @@ class cloudflare_api
 
 
     /**
-     * CLIENT API
-     * Section 3
-     * Access
+     * Zone
+     * A Zone is a domain name along with its subdomains and other identities
      */
 
     /**
-     * 3.1 - Retrieve Domain Statistics For A Given Time Frame
-     * This function retrieves the current stats and settings for a particular website.
-     * It can also be used to get currently settings of values such as the security level.
+     * Create a zone (permission needed: #zone:edit)
+     * @param  string   $domain       The domain name
+     * @param  boolean  $jump_start   Automatically attempt to fetch existing DNS records
+     * @param  stdClass $organization Organization that this zone will belong to
      */
-    public function stats($domain, $interval = 20)
+    public function create_zone($name, $jump_start = true, $organization = new stdClass())
     {
         $data = array(
-            'a'        => 'stats',
-            'z'        => $domain,
-            'interval' => $interval
+            'name'         => $name,
+            'jump_start'   => $jump_start,
+            'organization' => $organization
         );
-        return $this->http_post($data);
+        return $this->http_post('zones', $data);
     }
 
     /**
-     * 3.2 - Retrieve A List Of The Domains
-     * This lists all domains in a CloudFlare account along with other data.
+     * List zones permission needed: #zone:read
+     * List, search, sort, and filter your zones
+     * @param  string  $name      A domain name
+     * @param  string  $status    Status of the zone (active, pending, initializing, moved, deleted)
+     * @param  integer $page      Page number of paginated results
+     * @param  integer $per_page  Number of zones per page
+     * @param  string  $order     Field to order zones by (name, status, email)
+     * @param  string  $direction Direction to order zones (asc, desc)
+     * @param  string  $match     Whether to match all search requirements or at least one (any) (any, all)
      */
-    public function zone_load_multi()
+    public function list_zones($name = '', $status = 'active', $page = 1, $per_page = 20, $order = 'status', $direction = 'desc', $match = 'all')
     {
         $data = array(
-            'a' => 'zone_load_multi'
+            'name'      => $name,
+            'status'    => $status,
+            'page'      => $page,
+            'per_page'  => $per_page,
+            'order'     => $order,
+            'direction' => $direction,
+            'match'     => $match
         );
-        return $this->http_post($data);
+        return $this->http_get('zones', $data);
     }
 
     /**
-     * 3.3 - Retrieve DNS Records Of A Given Domain
-     * This function retrieves the current DNS records for a particular website.
+     * Zone details (permission needed: #zone:read)
+     * @param  string $identifier API item identifier tag
      */
-    public function rec_load_all($domain)
+    public function zone_details($identifier)
     {
-        $data = array(
-            'a' => 'rec_load_all',
-            'z' => $domain
-        );
-        return $this->http_post($data);
+        return $this->http_get('zones/' . $identifier);
     }
 
     /**
-     * 3.4 - Checks For Active Zones And Returns Their Corresponding Zids
-     * This function retrieves domain statistics for a given time frame.
+     * Pause all CloudFlare features (permission needed: #zone:edit)
+     * This will pause all features and settings for the zone. DNS will still resolve
+     * @param  string $identifier API item identifier tag
      */
-    public function zone_check($zones)
+    public function pause_zone($identifier)
     {
-        if (is_array($zones)) {
-            $zones = implode(',', $zones);
-        }
-        $data = array(
-            'a'     => 'zone_check',
-            'zones' => $zones
-        );
-        return $this->http_post($data);
+        return $this->http_put('zones/' . $identifier . '/pause');
     }
 
     /**
-     * 3.5 - Pull Recent IPs Visiting Your Site
-     * This function returns a list of IP address which hit your site classified by type.
-     * $zoneid = ID of the zone you would like to check.
-     * $hours = Number of hours to go back. Default is 24, max is 48.
-     * $class = Restrict the result set to a given class. Currently r|s|t, for regular, crawler, threat resp.
-     * $geo = Optional token. Add to add longitude and latitude information to the response. 0,0 means no data.
+     * Re-enable all CloudFlare features (permission needed: #zone:edit)
+     * This will restore all features and settings for the zone
+     * @param  string $identifier API item identifier tag
      */
-    public function zone_ips($domain, $hours, $class, $geo = '0,0')
+    public function unpause_zone($identifier)
     {
-        $data = array(
-            'a'     => 'zone_ips',
-            'z'     => $domain,
-            'hours' => $hours,
-            'class' => $class,
-            'geo'   => $geo
-        );
-        return $this->http_post($data);
+        return $this->http_put('zones/' . $identifier . '/unpause');
     }
 
     /**
-     * 3.6 - Check The Threat Score For A Given IP
-     * This function retrieves the current threat score for a given IP.
-     * Note that scores are on a logarithmic scale, where a higher score indicates a higher threat.
+     * Delete a zone (permission needed: #zone:edit)
+     * @param  string $identifier API item identifier tag
      */
-    public function threat_score($ip)
+    public function delete_zone($identifier)
     {
-        $data = array(
-            'a'  => 'ip_lkup',
-            'ip' => $ip
-        );
-        return $this->http_post($data);
+        return $this->http_delete('zones/' . $identifier);
     }
 
     /**
-     * 3.7 - List All The Current Settings
-     * This function retrieves all the current settings for a given domain.
+     * Purge all files (permission needed: #zone:edit)
+     * Remove ALL files from CloudFlare's cache
+     * @param  string  $identifier API item identifier tag
+     * @param  boolean A flag that indicates all resources in CloudFlare's cache should be removed.
+     *                 Note: This may have dramatic affects on your origin server load after
+     *                 performing this action. (true)
      */
-    public function zone_settings($domain)
+    public function purge($identifier, $purge_everything = true)
     {
         $data = array(
-            'a' => 'zone_settings',
-            'z' => $domain
+            'purge_everything' => $purge_everything
         );
-        return $this->http_post($data);
-    }
-    
-    /**
-     * Undocumented method
-     * SEE: https://github.com/vexxhost/CloudFlare-API/pull/3
-     */
-     public function zone_init($zone)
-     {
-         $data['a']    = 'zone_init';
-         $data['z']    = $zone;
-         return $this->http_post($data);
-     }
-
-    /**
-     * CLIENT API
-     * Section 4
-     * Modify
-     */
-
-    /**
-     * 4.1 - Set The Security Level
-     * This function sets the Basic Security Level to I'M UNDER ATTACK! / HIGH / MEDIUM / LOW / ESSENTIALLY OFF.
-     * The switches are: (help|high|med|low|eoff).
-     */
-    public function sec_lvl($domain, $mode)
-    {
-        $data = array(
-            'a' => 'sec_lvl',
-            'z' => $domain,
-            'v' => $mode
-        );
-        return $this->http_post($data);
+        return $this->http_put('zones/' . $identifier . '/purge_cache', $data);
     }
 
     /**
-     * 4.2 - Set The Cache Level
-     * This function sets the Caching Level to Aggressive or Basic.
-     * The switches are: (agg|basic).
+     * Purge individual files (permission needed: #zone:edit)
+     * Remove one or more files from CloudFlare's cache
+     * @param  string $identifier API item identifier tag
+     * @param  array  $files      An array of URLs that should be removed from cache
      */
-    public function cache_lvl($domain, $mode)
+    public function purge_files($identifier, array $files)
     {
         $data = array(
-            'a' => 'cache_lvl',
-            'z' => $domain,
-            'v' => (strtolower($mode) == 'agg') ? 'agg' : 'basic'
+            'files' => $files
         );
-        return $this->http_post($data);
+        return $this->http_delete('zones/' . $identifier . '/purge_cache', $data);
     }
 
     /**
-     * 4.3 - Toggling Development Mode
-     * This function allows you to toggle Development Mode on or off for a particular domain.
-     * When Development Mode is on the cache is bypassed.
-     * Development mode remains on for 3 hours or until when it is toggled back off.
+     * Zone Plan
      */
-    public function devmode($domain, $mode)
+
+    /**
+     * Available plans (permission needed: #billing:read)
+     * List all plans the zone can subscribe to.
+     * @param  string $zone_identifier
+     */
+    public function available_plans($zone_identifier)
     {
-        $data = array(
-            'a' => 'devmode',
-            'z' => $domain,
-            'v' => ($mode == true) ? 1 : 0
-        );
-        return $this->http_post($data);
+        return $this->http_get('zones/' . $identifier . '/plans');
     }
 
     /**
-     * 4.4 - Clear CloudFlare's Cache
-     * This function will purge CloudFlare of any cached files.
-     * It may take up to 48 hours for the cache to rebuild and optimum performance to be achieved.
-     * This function should be used sparingly.
+     * Available plans (permission needed: #billing:read)
+     * @param  string $zone_identifier
+     * @param  string $identifier      API item identifier tag
      */
-    public function fpurge_ts($domain)
+    public function plan_details($zone_identifier, $identifier)
     {
-        $data = array(
-            'a' => 'fpurge_ts',
-            'z' => $domain,
-            'v' => 1
-        );
-        return $this->http_post($data);
+        return $this->http_get('zones/' . $zone_identifier . '/plans/' . $identifier);
     }
 
     /**
-     * 4.5 - Purge A Single File In CloudFlare's Cache
-     * This function will purge a single file from CloudFlare's cache.
+     * Change plan (permission needed: #billing:edit)
+     * Change the plan level for the zone. This will cancel any previous subscriptions and subscribe the zone to the new plan.
+     * @param  string $zone_identifier
+     * @param  string $identifier      API item identifier tag
      */
-    public function zone_file_purge($domain, $url)
+    public function change_plan($zone_identifier, $identifier)
     {
-        $data = array(
-            'a'   => 'zone_file_purge',
-            'z'   => $domain,
-            'url' => $url
-        );
-        return $this->http_post($data);
+        return $this->http_put('zones/' . $zone_identifier . '/plans/' . $identifier . '/subscribe');
     }
 
     /**
-     * 4.6 - Update The Snapshot Of Your Site
-     * This snapshot is used on CloudFlare's challenge page
-     * This function tells CloudFlare to take a new image of your site.
-     * Note that this call is rate limited to once per zone per day.
-     * Also the new image may take up to 1 hour to appear.
-     */
-    public function update_image($zoneid)
-    {
-        $data = array(
-            'a'   => 'zone_grab',
-            'zid' => $zoneid
-        );
-        return $this->http_post($data);
-    }
-
-    /**
-     * 4.7a - Whitelist IPs
-     * You can add an IP address to your whitelist.
-     */
-    public function wl($ip)
-    {
-        $data = array(
-            'a'   => 'wl',
-            'key' => $ip
-        );
-        return $this->http_post($data);
-    }
-
-    /**
-     * 4.7b - Blacklist IPs
-     * You can add an IP address to your blacklist.
-     */
-    public function ban($ip)
-    {
-        $data = array(
-            'a'   => 'ban',
-            'key' => $ip
-        );
-        return $this->http_post($data);
-    }
-
-    /**
-     * 4.7c - Unlist IPs
-     * You can remove an IP address from the whitelist and the blacklist.
-     */
-    public function nul($ip)
-    {
-        $data = array(
-            'a'   => 'nul',
-            'key' => $ip
-        );
-        return $this->http_post($data);
-    }
-
-    /**
-     * 4.8 - Toggle IPv6 Support
-     * This function toggles IPv6 support.
-     */
-    public function ipv46($domain, $mode)
-    {
-        $data = array(
-            'a' => 'ipv46',
-            'z' => $domain,
-            'v' => ($mode == true) ? 1 : 0
-        );
-        return $this->http_post($data);
-    }
-
-    /**
-     * 4.9 - Set Rocket Loader
-     * This function changes Rocket Loader setting.
-     */
-    public function async($domain, $mode)
-    {
-        $data = array(
-            'a' => 'async',
-            'z' => $domain,
-            'v' => $mode
-        );
-        return $this->http_post($data);
-    }
-
-    /**
-     * 4.10 - Set Minification
-     * This function changes minification settings.
-     */
-    public function minify($domain, $mode)
-    {
-        $data = array(
-            'a' => 'minify',
-            'z' => $domain,
-            'v' => $mode
-        );
-        return $this->http_post($data);
-    }
-
-
-    /**
-     * CLIENT API
-     * Section 5
-     * DNS Record Management
+     * DNS Record
      */
 
     /**
-     * 5.1 - Add A New DNS Record
-     * This function creates a new DNS record for a zone.
-     * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
+     * Create DNS record (permission needed: #dns_records:edit)
+     * @param  string  $zone_identifier
+     * @param  string  $type    DNS record type (A, AAAA, CNAME, TXT, SRV, LOC, MX, NS, SPF)
+     * @param  string  $name    DNS record name
+     * @param  string  $content DNS record content
+     * @param  integer $ttl     Time to live for DNS record. Value of 1 is 'automatic'
      */
-    public function rec_new($domain, $type, $name, $content, $ttl = 1, $mode = 1, $prio = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1)
+    public function create_dns_record($zone_identifier, $type, $name = '', $content = '', $ttl = 120)
     {
         $data = array(
-            'a'       => 'rec_new',
-            'z'       => $domain,
             'type'    => $type,
             'name'    => $name,
             'content' => $content,
             'ttl'     => $ttl
         );
-        if (in_array($type, self::$MODE_SERVICE))
-            $data['service_mode'] = ($mode == true) ? 1 : 0;
-        else if (in_array($type, self::$PRIO)) {
-            $data['prio'] = $prio;
-            if ($type == 'SRV') {
-                $data = array_merge($data, array(
-                    'service'  => $service,
-                    'srvname'  => $srvname,
-                    'protocol' => $protocol,
-                    'weight'   => $weight,
-                    'port'     => $port,
-                    'target'   => $target
-                ));
-            }
-        }
-        return $this->http_post($data);
+
+        return $this->http_post('/zones/' . $zone_identifier . '/dns_records', $data);
     }
 
     /**
-     * 5.2 - Edit A DNS Record
-     * This function edits a DNS record for a zone.
-     * See http://www.cloudflare.com/docs/client-api.html#s5.1 for documentation.
+     * List DNS Records (permission needed: #dns_records:read)
+     * List, search, sort, and filter a zones' DNS records.
+     * @param  string  $zone_identifier
+     * @param  string  $type                      DNS record type (A, AAAA, CNAME, TXT, SRV, LOC, MX, NS, SPF)
+     * @param  string  $name                      DNS record name
+     * @param  string  $content                   DNS record content
+     * @param  string  $vanity_name_server_record Flag for records that were created for the vanity name server feature (true, false)
+     * @param  integer $page                      Page number of paginated results
+     * @param  integer $per_page                  Number of DNS records per page
+     * @param  string  $order                     Field to order records by (type, name, content, ttl, proxied)
+     * @param  string  $direction                 Direction to order domains (asc, desc)
+     * @param  string  $match                     Whether to match all search requirements or at least one (any) (any, all)
      */
-    public function rec_edit($domain, $type, $id, $name, $content, $ttl = 1, $mode = 1, $prio = 1, $service = 1, $srvname = 1, $protocol = 1, $weight = 1, $port = 1, $target = 1)
+    public function list_dns_records($zone_identifier, $type, $name = '', $content = '', $vanity_name_server_record = 'true', $page = 1, $per_page = 20, $order = 'type', $direction = 'desc', $match = 'all')
     {
         $data = array(
-            'a'       => 'rec_edit',
-            'z'       => $domain,
-            'type'    => $type,
-            'id'      => $id,
-            'name'    => $name,
-            'content' => $content,
-            'ttl'     => $ttl
+            'type'                      => $type,
+            'name'                      => $name,
+            'content'                   => $content,
+            'vanity_name_server_record' => $vanity_name_server_record,
+            'page'                      => $page,
+            'per_page'                  => $per_page,
+            'order'                     => $order,
+            'direction'                 => $direction,
+            'match'                     => $match
         );
-        if (in_array($type, self::$MODE_SERVICE))
-            $data['service_mode'] = ($mode == true) ? 1 : 0;
-        else if (in_array($type, self::$PRIO)) {
-            $data['prio'] = $prio;
-            if ($type == 'SRV') {
-                $data = array_merge($data, array(
-                    'service'  => $service,
-                    'srvname'  => $srvname,
-                    'protocol' => $protocol,
-                    'weight'   => $weight,
-                    'port'     => $port,
-                    'target'   => $target
-                ));
-            }
-        }
-        return $this->http_post($data);
+
+        return $this->http_get('/zones/' . $zone_identifier . '/dns_records', $data);
     }
 
     /**
-     * 5.3 - Delete A DNS Record
-     * This function deletes a DNS record for a zone.
-     * $zone = zone
-     * $id = The DNS Record ID (Available by using the rec_load_all call)
-     * $type = A|CNAME
+     * DNS record details (permission needed: #dns_records:read)
+     * @param  string $zone_identifier
+     * @param  string $identifier      API item identifier tag
      */
-    public function delete_dns_record($domain, $id)
+    public function dns_record_details($zone_identifier, $identifier)
     {
-        $data = array(
-            'a'  => 'rec_delete',
-            'z'  => $domain,
-            'id' => $id
-        );
-        return $this->http_post($data);
+        return $this->http_get('zones/' . $zone_identifier . '/dns_records/' . $identifier);
+    }
+
+    /**
+     * Update DNS record (permission needed: #dns_records:edit)
+     * @param  string $zone_identifier
+     * @param  string $identifier      API item identifier tag
+     */
+    public function dns_update_record_details($zone_identifier, $identifier)
+    {
+        return $this->http_put('zones/' . $zone_identifier . '/dns_records/' . $identifier);
+    }
+
+    /**
+     * Update DNS record (permission needed: #dns_records:edit)
+     * @param  string $zone_identifier
+     * @param  string $identifier      API item identifier tag
+     */
+    public function dns_delete_record($zone_identifier, $identifier)
+    {
+        return $this->http_delete('zones/' . $zone_identifier . '/dns_records/' . $identifier);
     }
 
 
     /**
-     * HOST API
-     * Section 3
-     * Specific Host Provider Operations
+     * GLOBAL API CALL methods
      */
-
-    public function user_create($email, $password, $username = '', $id = '')
+    private function http_get($path, $data = array())
     {
-        $data = array(
-            'act'                 => 'user_create',
-            'cloudflare_email'    => $email,
-            'cloudflare_pass'     => $password,
-            'cloudflare_username' => $username,
-            'unique_id'           => $id
-        );
-        return $this->http_post($data, 'HOST');
+        return $this->http_request($path, $data, 'get');
     }
 
-    public function zone_set($key, $zone, $resolve_to, $subdomains)
+    private function http_post($path, $data = array())
     {
-        if (is_array($subdomains))
-            $subdomains = implode(',', $subdomains);
-        $data = array(
-            'act'        => 'zone_set',
-            'user_key'   => $key,
-            'zone_name'  => $zone,
-            'resolve_to' => $resolve_to,
-            'subdomains' => $subdomains
-        );
-        return $this->http_post($data, 'HOST');
+        return $this->http_request($path, $data, 'post');
     }
 
-    public function user_lookup($email, $isID = false)
+    private function http_put($path, $data = array())
     {
-        $data = array(
-            'act' => 'user_lookup'
-        );
-        if ($isID) {
-            $data['unique_id'] = $email;
-        } else {
-            $data['cloudflare_email'] = $email;
-        }
-        return $this->http_post($data, 'HOST');
+        return $this->http_request($path, $data, 'put');
     }
 
-    public function user_auth($email, $password, $id = '')
+    private function http_delete($path, $data = array())
     {
-        $data = array(
-            'act'              => 'user_auth',
-            'cloudflare_email' => $email,
-            'cloudflare_pass'  => $password,
-            'unique_id'        => $id
-        );
-        return $this->http_post($data, 'HOST');
+        return $this->http_request($path, $data, 'delete');
     }
 
-    public function zone_lookup($zone, $user_key)
-    {
-        $data = array(
-            'act'       => 'zone_lookup',
-            'user_key'  => $user_key,
-            'zone_name' => $zone
-        );
-        return $this->http_post($data, 'HOST');
-    }
+    private function http_request($path, $data = array(), $method = 'get') {
 
-    public function zone_delete($zone, $user_key)
-    {
-        $data = array(
-            'act'       => 'zone_delete',
-            'user_key'  => $user_key,
-            'zone_name' => $zone
-        );
-        return $this->http_post($data, 'HOST');
-    }
+        $url = self::$URL . $path;
+        $headers = array("X-Auth-Email: {$this->email}", "X-Auth-Key: {$this->token_key}");
 
-    public function zone_list()
-    {
-        $data = array(
-            'act'       => 'zone_list',
-            'one_status'  => 'ALL',
-            'sub_status' => 'ALL'
-        );
-        return $this->http_post($data, 'HOST');
-    }
-
-    /**
-     * GLOBAL API CALL
-     * HTTP POST a specific task with the supplied data
-     */
-    private function http_post($data, $type = 'USER')
-    {
-        switch ($type) {
-            case 'USER':
-                $data['u']   = $this->email;
-                $data['tkn'] = $this->token_key;
-                break;
-            case 'HOST':
-                $data['host_key'] = $this->host_key;
-                break;
-        }
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_VERBOSE, 0);
         curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-        curl_setopt($ch, CURLOPT_URL, self::$URL[$type]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_TIMEOUT, self::TIMEOUT);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        if( $method === 'post' ) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_POST, true);
+        } else if ( $method === 'put' ) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data, '', '&'));
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+            //curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-HTTP-Method-Override: PUT'));
+        } else if ( $method === 'delete' ) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data, '', '&'));
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        } else if ($method === 'patch') {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
+            //$headers[] = "Content-type: application/json";
+        } else {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data, '', '&'));
+            $url .= '?' . http_build_query($data);
+        }
+
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_URL, $url);
+
         $http_result = curl_exec($ch);
         $error       = curl_error($ch);
         $http_code   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
